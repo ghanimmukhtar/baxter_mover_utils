@@ -1,0 +1,5 @@
+string arm
+string type
+float64[] goal
+---
+bool result
