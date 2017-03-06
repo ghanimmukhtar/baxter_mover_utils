@@ -19,7 +19,13 @@ bool BAXTER_Mover::move_baxter_arm_cb(baxter_mover_utils::move_baxter_arm::Reque
 
     baxter_helpers_methods::prepare_motion_request(req, res, _global_parameters);
 
-    _get_motion_plan->call(_global_parameters.get_motion_request(), _global_parameters.get_motion_response());
-    ROS_INFO_STREAM("the response success is: " << _global_parameters.get_motion_response().motion_plan_response.error_code);
-    return true;
+
+    bool success = false;
+    if(_get_motion_plan->call(_global_parameters.get_motion_request(), _global_parameters.get_motion_response()))
+        success = true;
+    else
+        success = false;
+    ROS_INFO_STREAM("the response error_code is: " << _global_parameters.get_motion_response().motion_plan_response.error_code);
+    ROS_INFO_STREAM("and success is: " << success);
+    return success;
 }
