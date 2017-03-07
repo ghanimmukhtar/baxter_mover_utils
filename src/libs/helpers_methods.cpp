@@ -39,7 +39,7 @@ void baxter_helpers_methods::prepare_motion_request(baxter_mover_utils::move_bax
                             baxter_mover_utils::move_baxter_arm::Response &res,
                             Data_config& params){
     ROS_INFO("I am at the service to move the arm");
-
+    params.get_motion_request().motion_plan_request.goal_constraints.clear();
     std::string eef_name;
     geometry_msgs::PointStamped position_target;
     geometry_msgs::PoseStamped pose_target;
@@ -65,16 +65,21 @@ void baxter_helpers_methods::prepare_motion_request(baxter_mover_utils::move_bax
     }
 
     if(strcmp(req.type.c_str(), "position") == 0){
-        ROS_INFO("building the position item");
+        ROS_INFO("building the position item regardless of orientation");
         position_target.header.frame_id = "/base";
         position_target.point.x = req.goal[0];
         position_target.point.y = req.goal[1];
         position_target.point.z = req.goal[2];
         moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints(eef_name, position_target);
+        ROS_WARN_STREAM("the goal is: "
+                << req.goal[0] << ", "
+                << req.goal[1] << ", "
+                << req.goal[2]);
         params.get_motion_request().motion_plan_request.goal_constraints.push_back(pose_goal);
 
     }
     else if(strcmp(req.type.c_str(), "pose") == 0){
+        ROS_INFO("building the pose item");
         pose_target.header.frame_id = "/base";
         pose_target.pose.position.x = req.goal[0];
         pose_target.pose.position.y = req.goal[1];
@@ -87,11 +92,20 @@ void baxter_helpers_methods::prepare_motion_request(baxter_mover_utils::move_bax
         params.get_motion_request().motion_plan_request.goal_constraints.push_back(pose_goal);
     }
     else if(strcmp(req.type.c_str(), "keep_orientation") == 0){
+        ROS_INFO("building the position item and trying to keep orientation as start");
         pose_target.header.frame_id = "/base";
-        pose_target.pose = params.get_eef_pose(params.get_motion_response().motion_plan_response.group_name);
+        pose_target.pose = params.get_eef_pose(eef_name);
         pose_target.pose.position.x = req.goal[0];
         pose_target.pose.position.y = req.goal[1];
         pose_target.pose.position.z = req.goal[2];
+        ROS_WARN_STREAM("the goal is: "
+                << req.goal[0] << ", "
+                << req.goal[1] << ", "
+                << req.goal[2] << ", "
+                   << pose_target.pose.orientation.w << ", "
+                      << pose_target.pose.orientation.x << ", "
+                         << pose_target.pose.orientation.y << ", "
+                            << pose_target.pose.orientation.z << ", ");
         moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints(eef_name, pose_target, tolerance_pose, tolerance_angle);
         params.get_motion_request().motion_plan_request.goal_constraints.push_back(pose_goal);
     }
