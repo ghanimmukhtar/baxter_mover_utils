@@ -10,6 +10,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit_msgs/GetMotionPlan.h>
+#include <moveit_msgs/ExecuteKnownTrajectory.h>
 
 #include <tf/tf.h>
 
@@ -21,6 +22,9 @@ struct Parameters {
     XmlRpc::XmlRpcValue planner_parameters;
     moveit_msgs::GetMotionPlanRequest final_motion_request;
     moveit_msgs::GetMotionPlanResponse final_motion_response;
+
+    moveit_msgs::ExecuteKnownTrajectoryRequest execute_traj_req;
+    moveit_msgs::ExecuteKnownTrajectoryResponse execute_traj_res;
 };
 
 class Data_config{
@@ -72,6 +76,14 @@ public:
 
     moveit_msgs::GetMotionPlanResponse& get_motion_response(){
         return params.final_motion_response;
+    }
+
+    moveit_msgs::ExecuteKnownTrajectoryRequest& get_motion_execute_request(){
+        return params.execute_traj_req;
+    }
+
+    moveit_msgs::ExecuteKnownTrajectoryResponse& get_motion_execute_response(){
+        return params.execute_traj_res;
     }
 
     //// Setters
