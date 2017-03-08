@@ -47,11 +47,12 @@ private:
     std::unique_ptr<ros::ServiceClient> _get_motion_plan;
     std::unique_ptr<ros::ServiceClient> _execute_motion_plan;
     std::unique_ptr<ros::ServiceClient> _clear_octomap;
+    std::shared_ptr<moveit::planning_interface::MoveGroup> _group;
     std::unique_ptr<ros::Subscriber> _sub_l_eef_msg, _sub_r_eef_msg;
     std::string _planner_id;
     XmlRpc::XmlRpcValue _planner_parameters;
 
-    ros::NodeHandlePtr nh_;
+    ros::NodeHandlePtr _nh;
 };
 
 

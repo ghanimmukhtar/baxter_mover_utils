@@ -88,6 +88,9 @@ void baxter_helpers_methods::prepare_motion_request(baxter_mover_utils::move_bax
         pose_target.pose.orientation.y = req.goal[4];
         pose_target.pose.orientation.z = req.goal[5];
         pose_target.pose.orientation.w = req.goal[6];
+
+        params.set_pose_target(pose_target);
+
         moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints(eef_name, pose_target, tolerance_pose, tolerance_angle);
         params.get_motion_request().motion_plan_request.goal_constraints.push_back(pose_goal);
         ROS_WARN_STREAM("the goal is: "
@@ -106,6 +109,9 @@ void baxter_helpers_methods::prepare_motion_request(baxter_mover_utils::move_bax
         pose_target.pose.position.x = req.goal[0];
         pose_target.pose.position.y = req.goal[1];
         pose_target.pose.position.z = req.goal[2];
+
+        params.set_pose_target(pose_target);
+
         ROS_WARN_STREAM("the goal is: "
                 << req.goal[0] << ", "
                 << req.goal[1] << ", "

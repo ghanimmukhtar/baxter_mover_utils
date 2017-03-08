@@ -8,7 +8,10 @@
 #include <vector>
 
 #include <geometry_msgs/PoseStamped.h>
+
 #include <moveit/kinematic_constraints/utils.h>
+#include <moveit/move_group_interface/move_group.h>
+
 #include <moveit_msgs/GetMotionPlan.h>
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <std_srvs/Empty.h>
@@ -17,10 +20,13 @@
 
 struct Parameters {
     geometry_msgs::Pose l_eef_pose, r_eef_pose;
+    geometry_msgs::PoseStamped pose_target;
     Eigen::VectorXd l_eef_rpy_pose, r_eef_rpy_pose;
     Eigen::Vector3d l_eef_position, r_eef_position;
     Eigen::Vector3d l_eef_rpy_orientation, r_eef_rpy_orientation;
+
     XmlRpc::XmlRpcValue planner_parameters;
+
     moveit_msgs::GetMotionPlanRequest final_motion_request;
     moveit_msgs::GetMotionPlanResponse final_motion_response;
 
@@ -48,6 +54,11 @@ public:
         else
             return params.r_eef_pose;
     }
+
+    geometry_msgs::PoseStamped& get_pose_target(){
+        return params.pose_target;
+    }
+
 
     Eigen::VectorXd& get_eef_rpy_pose(const std::string gripper){
         if(strcmp(gripper.c_str(), "left_gripper") == 0)
@@ -104,6 +115,10 @@ public:
             params.l_eef_pose = eef_pose;
         else
             params.r_eef_pose = eef_pose;
+    }
+
+    void set_pose_target(geometry_msgs::PoseStamped& pose_target){
+        params.pose_target = pose_target;
     }
 
     void set_eef_rpy_pose(Eigen::VectorXd& eef_rpy_pose, const std::string gripper){
