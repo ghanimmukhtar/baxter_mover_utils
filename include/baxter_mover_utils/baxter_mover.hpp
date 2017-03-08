@@ -46,6 +46,7 @@ private:
     std::unique_ptr<ros::ServiceServer> _baxter_mover;
     std::unique_ptr<ros::ServiceClient> _get_motion_plan;
     std::unique_ptr<ros::ServiceClient> _execute_motion_plan;
+    std::unique_ptr<ros::ServiceClient> _clear_octomap;
     std::unique_ptr<ros::Subscriber> _sub_l_eef_msg, _sub_r_eef_msg;
     std::string _planner_id;
     XmlRpc::XmlRpcValue _planner_parameters;

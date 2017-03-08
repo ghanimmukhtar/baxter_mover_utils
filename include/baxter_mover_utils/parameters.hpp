@@ -11,6 +11,7 @@
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit_msgs/GetMotionPlan.h>
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
+#include <std_srvs/Empty.h>
 
 #include <tf/tf.h>
 
@@ -25,6 +26,9 @@ struct Parameters {
 
     moveit_msgs::ExecuteKnownTrajectoryRequest execute_traj_req;
     moveit_msgs::ExecuteKnownTrajectoryResponse execute_traj_res;
+
+    std_srvs::Empty::Request empty_octomap_request;
+    std_srvs::Empty::Response empty_octomap_response;
 };
 
 class Data_config{
@@ -86,6 +90,13 @@ public:
         return params.execute_traj_res;
     }
 
+    std_srvs::Empty::Request& get_empty_octomap_request(){
+        return params.empty_octomap_request;
+    }
+
+    std_srvs::Empty::Response& get_empty_octomap_response(){
+        return params.empty_octomap_response;
+    }
     //// Setters
     //left and right grippers pose variables getters
     void set_eef_pose(geometry_msgs::Pose& eef_pose, const std::string gripper){

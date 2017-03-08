@@ -6,6 +6,7 @@ void BAXTER_Mover::init(ros::NodeHandle& nh){
     _baxter_mover.reset(new ros::ServiceServer(nh.advertiseService("move_baxter_arm", &BAXTER_Mover::move_baxter_arm_cb, this)));
     _get_motion_plan.reset(new ros::ServiceClient(nh.serviceClient<moveit_msgs::GetMotionPlan>("/plan_kinematic_path", 1)));
     _execute_motion_plan.reset(new ros::ServiceClient(nh.serviceClient<moveit_msgs::ExecuteKnownTrajectory>("/execute_kinematic_path", 1)));
+    _clear_octomap.reset(new ros::ServiceClient(nh.serviceClient<std_srvs::Empty>("/clear_octomap", 1)));
     _sub_l_eef_msg.reset(new ros::Subscriber(nh.subscribe("/robot/limb/left/endpoint_state", 10, &BAXTER_Mover::left_eef_Callback, this)));
     _sub_r_eef_msg.reset(new ros::Subscriber(nh.subscribe("/robot/limb/right/endpoint_state", 10, &BAXTER_Mover::right_eef_Callback, this)));
 
@@ -21,18 +22,37 @@ bool BAXTER_Mover::move_baxter_arm_cb(baxter_mover_utils::move_baxter_arm::Reque
 
     baxter_helpers_methods::prepare_motion_request(req, res, _global_parameters);
 
-
-
     bool plan_success = false, execute_success = false;
-    if(_get_motion_plan->call(_global_parameters.get_motion_request(), _global_parameters.get_motion_response())){
+    if(!req.collision_detection){
+        _clear_octomap->call(_global_parameters.get_empty_octomap_request(), _global_parameters.get_empty_octomap_response());
+        if(_get_motion_plan->call(_global_parameters.get_motion_request(), _global_parameters.get_motion_response()))
+            plan_success = true;
+        //if didn't work first time try 10 more times
+        else{
+            for(int i = 0; i < 10 || !plan_success; i++){
+                ROS_WARN("trying to move without checking collision :):):):)");
+                _clear_octomap->call(_global_parameters.get_empty_octomap_request(), _global_parameters.get_empty_octomap_response());
+                if(_get_motion_plan->call(_global_parameters.get_motion_request(), _global_parameters.get_motion_response()))
+                    plan_success = true;
+            }
+        }
+    }
+    else if(_get_motion_plan->call(_global_parameters.get_motion_request(), _global_parameters.get_motion_response())){
         plan_success = true;
+
+    }
+    else
+        plan_success = false;
+
+    if(plan_success){
         _global_parameters.get_motion_execute_request().trajectory = _global_parameters.get_motion_response().motion_plan_response.trajectory;
+        ROS_ERROR_STREAM("size of trajectory to be executed is: "
+                         << _global_parameters.get_motion_execute_request().trajectory.joint_trajectory.points.size());
         _global_parameters.get_motion_execute_request().wait_for_execution = true;
         if(_execute_motion_plan->call(_global_parameters.get_motion_execute_request(), _global_parameters.get_motion_execute_response()))
             execute_success = true;
     }
-    else
-        plan_success = false;
+
     ROS_INFO_STREAM("the planning response error_code is: " << _global_parameters.get_motion_response().motion_plan_response.error_code);
     ROS_INFO_STREAM("and planning success is: " << plan_success);
     ROS_INFO_STREAM("and executing success is: " << execute_success);

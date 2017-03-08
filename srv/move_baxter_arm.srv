@@ -1,5 +1,6 @@
 string arm
 string type
+bool collision_detection
 float64[] goal
 ---
 bool result

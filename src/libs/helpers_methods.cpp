@@ -90,6 +90,14 @@ void baxter_helpers_methods::prepare_motion_request(baxter_mover_utils::move_bax
         pose_target.pose.orientation.w = req.goal[6];
         moveit_msgs::Constraints pose_goal = kinematic_constraints::constructGoalConstraints(eef_name, pose_target, tolerance_pose, tolerance_angle);
         params.get_motion_request().motion_plan_request.goal_constraints.push_back(pose_goal);
+        ROS_WARN_STREAM("the goal is: "
+                << req.goal[0] << ", "
+                << req.goal[1] << ", "
+                << req.goal[2] << ", "
+                   << pose_target.pose.orientation.w << ", "
+                      << pose_target.pose.orientation.x << ", "
+                         << pose_target.pose.orientation.y << ", "
+                            << pose_target.pose.orientation.z << ", ");
     }
     else if(strcmp(req.type.c_str(), "keep_orientation") == 0){
         ROS_INFO("building the position item and trying to keep orientation as start");
