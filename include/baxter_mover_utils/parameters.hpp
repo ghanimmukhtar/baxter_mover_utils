@@ -10,6 +10,7 @@
 #include <geometry_msgs/PoseStamped.h>
 
 #include <moveit/kinematic_constraints/utils.h>
+#include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/move_group_interface/move_group.h>
 
 #include <moveit_msgs/GetMotionPlan.h>
@@ -19,6 +20,8 @@
 #include <tf/tf.h>
 
 struct Parameters {
+    std::vector<std::string> arm_joints_names = {"left_s0", "left_s1", "left_e0", "left_e1", "left_w0", "left_w1", "left_w2"};
+    sensor_msgs::JointState my_joint_state;
     geometry_msgs::Pose l_eef_pose, r_eef_pose;
     geometry_msgs::PoseStamped pose_target;
     Eigen::VectorXd l_eef_rpy_pose, r_eef_rpy_pose;
@@ -35,6 +38,9 @@ struct Parameters {
 
     std_srvs::Empty::Request empty_octomap_request;
     std_srvs::Empty::Response empty_octomap_response;
+
+    std::unique_ptr<robot_model_loader::RobotModelLoader> robot_model_loader;
+    robot_model::RobotModelPtr robot_model;
 };
 
 class Data_config{
@@ -59,6 +65,13 @@ public:
         return params.pose_target;
     }
 
+    std::vector<std::string>& get_baxter_arm_joints_names(){
+        return params.arm_joints_names;
+    }
+
+    sensor_msgs::JointState& get_joint_state(){
+        return params.my_joint_state;
+    }
 
     Eigen::VectorXd& get_eef_rpy_pose(const std::string gripper){
         if(strcmp(gripper.c_str(), "left_gripper") == 0)
@@ -110,6 +123,18 @@ public:
     }
     //// Setters
     //left and right grippers pose variables getters
+    void set_robot_model_loader(){
+        params.robot_model_loader.reset(new robot_model_loader::RobotModelLoader("robot_description"));
+    }
+
+    void set_robot_model(){
+        params.robot_model = params.robot_model_loader->getModel();
+    }
+
+    void set_joint_state(const sensor_msgs::JointState::ConstPtr& jo_state){
+        params.my_joint_state = *jo_state;
+    }
+
     void set_eef_pose(geometry_msgs::Pose& eef_pose, const std::string gripper){
         if(strcmp(gripper.c_str(), "left_gripper") == 0)
             params.l_eef_pose = eef_pose;

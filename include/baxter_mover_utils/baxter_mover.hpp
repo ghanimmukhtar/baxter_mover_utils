@@ -28,20 +28,27 @@ public:
 
     //call back that register baxter left end effector pose and rearrange the orientation in RPY
     void left_eef_Callback(baxter_core_msgs::EndpointState l_eef_feedback){
-        baxter_helpers_methods::locate_eef_pose(l_eef_feedback.pose, _global_parameters, "left_gripper");
+        baxter_helpers_methods::locate_eef_pose(l_eef_feedback.pose, global_parameters, "left_gripper");
         //ROS_WARN_STREAM("locating eef stuff gave for position: " << data_simu.get_eef_position()
                     //    << "\n and for orientation: " << data_simu.get_eef_rpy_orientation());
     }
 
     //call back that register baxter right end effector pose and rearrange the orientation in RPY
     void right_eef_Callback(baxter_core_msgs::EndpointState r_eef_feedback){
-        baxter_helpers_methods::locate_eef_pose(r_eef_feedback.pose, _global_parameters, "right_gripper");
+        baxter_helpers_methods::locate_eef_pose(r_eef_feedback.pose, global_parameters, "right_gripper");
         //ROS_WARN_STREAM("locating eef stuff gave for position: " << data_simu.get_eef_position()
                     //    << "\n and for orientation: " << data_simu.get_eef_rpy_orientation());
     }
 
+    //call back that register crustcrawler joint states
+    void joint_state_Callback(const sensor_msgs::JointState::ConstPtr& joint_state_feedback){
+        global_parameters.set_joint_state(joint_state_feedback);
+    }
+
+    Data_config global_parameters;
+    std::shared_ptr<moveit::planning_interface::MoveGroup> group;
+
 private:
-    Data_config _global_parameters;
     std::unique_ptr<ros::AsyncSpinner> _my_spinner;
     std::unique_ptr<ros::ServiceServer> _baxter_mover;
     std::unique_ptr<ros::ServiceClient> _get_motion_plan;
@@ -50,6 +57,7 @@ private:
     std::shared_ptr<moveit::planning_interface::MoveGroup> _group;
     std::unique_ptr<ros::Subscriber> _sub_l_eef_msg, _sub_r_eef_msg;
     std::string _planner_id;
+    std::unique_ptr<ros::Subscriber> _sub_joint_state_msg;
     XmlRpc::XmlRpcValue _planner_parameters;
 
     ros::NodeHandlePtr _nh;
