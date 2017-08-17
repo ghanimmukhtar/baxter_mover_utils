@@ -1,13 +1,5 @@
 #ifndef _BAXTER_MOVER_HPP
 #define _BAXTER_MOVER_HPP
-
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
-
-#include <memory>
-#include <boost/bind.hpp>
-
-#include <baxter_mover_utils/parameters.hpp>
 #include <baxter_mover_utils/helpers_methods.hpp>
 
 namespace baxter_mover {
@@ -42,11 +34,31 @@ public:
 
     //call back that register crustcrawler joint states
     void joint_state_Callback(const sensor_msgs::JointState::ConstPtr& joint_state_feedback){
+        //ROS_INFO_STREAM("BAXTER MOVER: I am saving joint states, that is good :)");
         global_parameters.set_joint_state(joint_state_feedback);
     }
 
+    void call_service_get_ps(){
+        global_parameters.get_ps_request().components.components = moveit_msgs::PlanningSceneComponents::ALLOWED_COLLISION_MATRIX;
+        _get_planning_scene->call(global_parameters.get_ps_request(), global_parameters.get_ps_response());
+        if(global_parameters.get_adding_octomap_to_acm()){
+            global_parameters.get_ps_response().scene.allowed_collision_matrix.default_entry_names.push_back("<octomap>");
+            global_parameters.get_ps_response().scene.allowed_collision_matrix.default_entry_values.push_back(true);
+        }
+        else{
+            global_parameters.get_ps_response().scene.allowed_collision_matrix.default_entry_names.clear();
+            global_parameters.get_ps_response().scene.allowed_collision_matrix.default_entry_values.clear();
+        }
+    }
+
+    void publish_psm_msg(){
+        global_parameters.get_ps_msg().is_diff = true;
+        global_parameters.get_ps_msg().allowed_collision_matrix = global_parameters.get_ps_response().scene.allowed_collision_matrix;
+        _psm_pub->publish(global_parameters.get_ps_msg());
+    }
+
     Data_config global_parameters;
-    std::shared_ptr<moveit::planning_interface::MoveGroup> group;
+    std::shared_ptr<moveit::planning_interface::MoveGroup> group, secondary_group;
 
 private:
     std::unique_ptr<ros::AsyncSpinner> _my_spinner;
@@ -54,6 +66,8 @@ private:
     std::unique_ptr<ros::ServiceClient> _get_motion_plan;
     std::unique_ptr<ros::ServiceClient> _execute_motion_plan;
     std::unique_ptr<ros::ServiceClient> _clear_octomap;
+    std::unique_ptr<ros::ServiceClient> _get_planning_scene;
+    std::unique_ptr<ros::Publisher> _psm_pub;
     std::shared_ptr<moveit::planning_interface::MoveGroup> _group;
     std::unique_ptr<ros::Subscriber> _sub_l_eef_msg, _sub_r_eef_msg;
     std::string _planner_id;

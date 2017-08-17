@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   trajectory_msgs
+  baxter_core_msgs
   message_generation
 )
 
@@ -27,7 +28,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES baxter_mover_utils
-  CATKIN_DEPENDS moveit_ros_planning_interface roscpp rospy std_msgs tf trajectory_msgs message_runtime
+  CATKIN_DEPENDS moveit_ros_planning_interface roscpp rospy std_msgs tf trajectory_msgs baxter_core_msgs message_runtime
 )
 
 ## Specify additional locations of header files

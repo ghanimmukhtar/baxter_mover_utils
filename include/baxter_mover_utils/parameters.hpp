@@ -5,19 +5,29 @@
 #include <math.h>
 #include <Eigen/Core>
 
+#include <memory>
+#include <boost/bind.hpp>
+
 #include <vector>
 
 #include <geometry_msgs/PoseStamped.h>
 
+#include <baxter_core_msgs/EndpointState.h>
+
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/move_group_interface/move_group.h>
+#include <moveit/move_group/move_group_context.h>
+#include <moveit/planning_pipeline/planning_pipeline.h>
 
 #include <moveit_msgs/GetMotionPlan.h>
+#include <moveit_msgs/PlanningScene.h>
+#include <moveit_msgs/GetPlanningScene.h>
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <std_srvs/Empty.h>
 
-#include <tf/tf.h>
+#include <tf/transform_listener.h>
+#include <baxter_mover_utils/move_baxter_arm.h>
 
 struct Parameters {
     std::vector<std::string> arm_joints_names = {"left_s0", "left_s1", "left_e0", "left_e1", "left_w0", "left_w1", "left_w2"};
@@ -41,6 +51,11 @@ struct Parameters {
 
     std::unique_ptr<robot_model_loader::RobotModelLoader> robot_model_loader;
     robot_model::RobotModelPtr robot_model;
+
+    moveit_msgs::GetPlanningScene::Request ps_req;
+    moveit_msgs::GetPlanningScene::Response ps_res;
+    moveit_msgs::PlanningScene ps_msg;
+    bool add_octomap_to_acm = false;
 };
 
 class Data_config{
@@ -121,6 +136,23 @@ public:
     std_srvs::Empty::Response& get_empty_octomap_response(){
         return params.empty_octomap_response;
     }
+
+    moveit_msgs::GetPlanningScene::Request& get_ps_request(){
+        return params.ps_req;
+    }
+
+    moveit_msgs::GetPlanningScene::Response& get_ps_response(){
+        return params.ps_res;
+    }
+
+    moveit_msgs::PlanningScene& get_ps_msg(){
+        return params.ps_msg;
+    }
+
+    bool& get_adding_octomap_to_acm(){
+        return params.add_octomap_to_acm;
+    }
+
     //// Setters
     //left and right grippers pose variables getters
     void set_robot_model_loader(){
@@ -176,6 +208,22 @@ public:
 
     void set_motion_response(moveit_msgs::GetMotionPlanResponse& motion_plan_response){
         params.final_motion_response = motion_plan_response;
+    }
+
+    void set_ps_request(moveit_msgs::GetPlanningScene::Request req){
+        params.ps_req = req;
+    }
+
+    void set_ps_response(moveit_msgs::GetPlanningScene::Response res){
+        params.ps_res = res;
+    }
+
+    void set_ps_msg(moveit_msgs::PlanningScene msg){
+        params.ps_msg = msg;
+    }
+
+    void set_adding_octomap_to_acm(bool add){
+        params.add_octomap_to_acm = add;
     }
 };
 
