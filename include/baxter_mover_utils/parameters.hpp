@@ -56,6 +56,7 @@ struct Parameters {
     moveit_msgs::GetPlanningScene::Response ps_res;
     moveit_msgs::PlanningScene ps_msg;
     bool add_octomap_to_acm = false;
+    double approach_radius = 0;
 };
 
 class Data_config{
@@ -153,6 +154,10 @@ public:
         return params.add_octomap_to_acm;
     }
 
+    double get_approach_radius(){
+        return params.approach_radius;
+    }
+
     //// Setters
     //left and right grippers pose variables getters
     void set_robot_model_loader(){
@@ -224,6 +229,10 @@ public:
 
     void set_adding_octomap_to_acm(bool add){
         params.add_octomap_to_acm = add;
+    }
+
+    void set_approach_radius(double radius){
+        params.approach_radius = radius;
     }
 };
 

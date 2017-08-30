@@ -35,7 +35,8 @@ public:
     //call back that register crustcrawler joint states
     void joint_state_Callback(const sensor_msgs::JointState::ConstPtr& joint_state_feedback){
         //ROS_INFO_STREAM("BAXTER MOVER: I am saving joint states, that is good :)");
-        global_parameters.set_joint_state(joint_state_feedback);
+        if(joint_state_feedback->position.size() > 7)
+            global_parameters.set_joint_state(joint_state_feedback);
     }
 
     void call_service_get_ps(){
