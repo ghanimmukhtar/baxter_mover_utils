@@ -26,8 +26,13 @@ void BAXTER_Mover::init(ros::NodeHandle& nh){
     secondary_group.reset(new MoveGroup(MoveGroup::Options(static_cast<std::string>(global_parameters.get_planner_parameters()["secondary_arm"]), MoveGroup::ROBOT_DESCRIPTION, nh)));
     ROS_INFO_STREAM("THE MOVER: The planner id is: " << std::string(global_parameters.get_planner_parameters()["planner_id"]));
     ROS_INFO_STREAM("THE MOVER: The planning time is: " << std::stod(global_parameters.get_planner_parameters()["planning_time"]));
+
     group->setPlannerId(std::string(global_parameters.get_planner_parameters()["planner_id"]));
     group->setPlanningTime(std::stod(global_parameters.get_planner_parameters()["planning_time"]));
+
+    secondary_group->setPlannerId(std::string(global_parameters.get_planner_parameters()["planner_id"]));
+    secondary_group->setPlanningTime(std::stod(global_parameters.get_planner_parameters()["planning_time"]));
+
     //nh.getParam("planner_id", _planner_id);
     _my_spinner.reset(new ros::AsyncSpinner(1));
     _my_spinner->start();

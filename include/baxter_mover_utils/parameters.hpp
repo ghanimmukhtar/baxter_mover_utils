@@ -1,12 +1,15 @@
 #ifndef __PARAMETERS_HPP__
 #define __PARAMETERS_HPP__
 #include <ros/ros.h>
+#include <iostream>
+#include <sstream>
+#include <ros/callback_queue.h>
 #include <string>
 #include <math.h>
 #include <Eigen/Core>
 
-#include <memory>
 #include <boost/bind.hpp>
+#include <memory>
 
 #include <vector>
 
@@ -26,11 +29,13 @@
 #include <moveit_msgs/ExecuteKnownTrajectory.h>
 #include <std_srvs/Empty.h>
 
+#include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <baxter_mover_utils/move_baxter_arm.h>
 
 struct Parameters {
-    std::vector<std::string> arm_joints_names = {"left_s0", "left_s1", "left_e0", "left_e1", "left_w0", "left_w1", "left_w2"};
+    std::vector<std::string> arm_joints_names_left = {"left_s0", "left_s1", "left_e0", "left_e1", "left_w0", "left_w1", "left_w2"};
+    std::vector<std::string> arm_joints_names_right = {"right_s0", "right_s1", "right_e0", "right_e1", "right_w0", "right_w1", "right_w2"};
     sensor_msgs::JointState my_joint_state;
     geometry_msgs::Pose l_eef_pose, r_eef_pose;
     geometry_msgs::PoseStamped pose_target;
@@ -81,8 +86,12 @@ public:
         return params.pose_target;
     }
 
-    std::vector<std::string>& get_baxter_arm_joints_names(){
-        return params.arm_joints_names;
+    std::vector<std::string>& get_baxter_left_arm_joints_names(){
+        return params.arm_joints_names_left;
+    }
+
+    std::vector<std::string>& get_baxter_right_arm_joints_names(){
+        return params.arm_joints_names_right;
     }
 
     sensor_msgs::JointState& get_joint_state(){
