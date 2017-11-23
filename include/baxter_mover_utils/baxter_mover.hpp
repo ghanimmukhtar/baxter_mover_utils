@@ -58,6 +58,10 @@ public:
         _psm_pub->publish(global_parameters.get_ps_msg());
     }
 
+    void publish_psm_msg(moveit_msgs::PlanningScene the_scene){
+        _psm_pub->publish(the_scene);
+    }
+
     Data_config global_parameters;
     std::shared_ptr<moveit::planning_interface::MoveGroup> group, secondary_group;
 
