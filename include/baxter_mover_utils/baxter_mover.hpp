@@ -58,8 +58,8 @@ public:
         _psm_pub->publish(global_parameters.get_ps_msg());
     }
 
-    void publish_psm_msg(moveit_msgs::PlanningScene the_scene){
-        _psm_pub->publish(the_scene);
+    void publish_psm_msg(moveit_msgs::PlanningScene planning_scene){
+        _psm_pub->publish(planning_scene);
     }
 
     Data_config global_parameters;
